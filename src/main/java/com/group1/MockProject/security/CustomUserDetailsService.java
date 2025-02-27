@@ -15,7 +15,7 @@ import java.util.Set;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -25,9 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Người dùng không tồn tại trong hệ thống"));
-
         GrantedAuthority authorities = user.getRole().toGrantedAuthority();
-
         return new org.springframework.security.core.userdetails.User(user.getEmail(),
                 user.getPassword(),
                 Collections.singleton(authorities));

@@ -12,6 +12,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,7 @@ public class DashboardController {
     this.userRepository = userRepository;
   }
 
+  @PreAuthorize("hasRole('INSTRUCTOR')")
   @GetMapping("/instructor")
   public ResponseEntity<ApiResponseDto<InstructorDashboardResponse>> getInstructorDashboard() {
     // Lấy thông tin instructor hiện tại
@@ -79,6 +81,7 @@ public class DashboardController {
             .build());
   }
 
+  @PreAuthorize("hasRole('STUDENT')")
   @GetMapping("/student")
   public ResponseEntity<ApiResponseDto<?>> viewStudentDashboard() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

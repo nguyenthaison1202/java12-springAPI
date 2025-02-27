@@ -8,7 +8,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    show-sql: false
     open-in-view: true
     properties:
       hibernate:
@@ -75,5 +75,4 @@ logging:
     org.springframework.security: DEBUG # Bật debug cho Spring Security
     org.springframework.web: DEBUG # Bật debug cho các request web
     org.springframework: INFO # Giữ mức INFO cho các component khác của Spring
-
 

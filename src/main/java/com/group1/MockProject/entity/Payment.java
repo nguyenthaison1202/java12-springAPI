@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,12 +34,16 @@ public class Payment {
   private String paymentCode;
 
   @Column(name = "payment_date")
-  private LocalDateTime payment_date;
+  private LocalDateTime payment_date = LocalDateTime.now();
 
   @JsonManagedReference
   @OneToMany(mappedBy = "payment")
-  private Set<PaymentDetail> paymentDetails;
+  private List<PaymentDetail> paymentDetails;
 
   @Column(name = "total_price")
   private Long total_price;
+
+  @Column(name = "created_date")
+  private LocalDateTime createdDate = LocalDateTime.now();
+
 }

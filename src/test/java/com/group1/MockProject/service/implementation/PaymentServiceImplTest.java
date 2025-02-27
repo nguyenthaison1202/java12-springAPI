@@ -1,9 +1,6 @@
 package com.group1.MockProject.service.implementation;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.group1.MockProject.dto.PaymentDTO;
-import com.group1.MockProject.dto.request.AddPaymentRequest;
 import com.group1.MockProject.dto.request.PaymentRequest;
 import com.group1.MockProject.dto.response.AddPaymentResponse;
 import com.group1.MockProject.dto.response.GetSavedCourseResponse;
@@ -80,7 +77,7 @@ class PaymentServiceImplTest {
     String mockEmail = "email@email.com";
     int courseId = 1;
 
-    AddPaymentRequest request = new AddPaymentRequest();
+    PaymentRequest request = new PaymentRequest();
     request.setCourseId(courseId);
     mockUser.setStatus(1);
 
@@ -112,7 +109,7 @@ class PaymentServiceImplTest {
   public void testAddPaymentDetail_UserNotFound() {
     int courseId = 1;
 
-    AddPaymentRequest request = new AddPaymentRequest();
+    PaymentRequest request = new PaymentRequest();
     request.setCourseId(courseId);
 
     Mockito.when(userRepository.findByEmail(Mockito.eq(mockEmail))).thenReturn(Optional.empty());
@@ -130,7 +127,7 @@ class PaymentServiceImplTest {
     String mockEmail = "email@email.com";
     int courseId = 1;
 
-    AddPaymentRequest request = new AddPaymentRequest();
+    PaymentRequest request = new PaymentRequest();
     request.setCourseId(courseId);
     mockUser.setStatus(1);
 
@@ -159,7 +156,7 @@ class PaymentServiceImplTest {
     String mockEmail = "email@email.com";
     int courseId = 1;
 
-    AddPaymentRequest request = new AddPaymentRequest();
+    PaymentRequest request = new PaymentRequest();
     request.setCourseId(courseId);
     mockUser.setStatus(1);
 
@@ -192,7 +189,7 @@ class PaymentServiceImplTest {
     String mockEmail = "email@email.com";
     int courseId = 1;
 
-    AddPaymentRequest request = new AddPaymentRequest();
+    PaymentRequest request = new PaymentRequest();
     request.setCourseId(courseId);
     mockUser.setStatus(0);
 

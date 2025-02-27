@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
 public class InstructorDTO {
     private int id;
     private String expertise;
-    private String email;
-    private String fullName;
-    private String address;
-    private String phone;
-    private String provider;
-    private int status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+//    private String email;
+    private String name;
+//    private String address;
+//    private String phone;
+//    private String provider;
+//    private int status;
+//    private LocalDateTime createdAt;
+//    private LocalDateTime updatedAt;
 }

@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ public class PaymentController {
     this.paymentService = paymentService;
   }
 
+  @PreAuthorize("hasRole('STUDENT')")
   @GetMapping("/create_payment/{course_id}")
   public ResponseEntity<?> paymentCourse(@PathVariable("course_id") int courseId)
       throws UnsupportedEncodingException {

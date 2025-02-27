@@ -172,4 +172,25 @@ public class EmailServiceImpl implements EmailService {
             + reason
             + "\nVui lòng chỉnh sửa và gửi lại để được xem xét.");
   }
+
+  @Override
+  public String buildRejectInstructorEmail(String instructorName, String reason) {
+    return buildEmail(
+            "Tài khoản của bạn đã bị từ chối",
+            instructorName,
+            "Lý do: "
+                    + reason
+                    + "\nVui lòng chỉnh sửa và gửi lại để được xem xét.");
+  }
+
+  @Override
+  public String buildApprovedInstructorEmail(String instructorName, String reason) {
+    return buildEmail(
+            "Tài khoản của bạn đã được duyệt",
+            instructorName,
+            "Lý do: "
+                    + reason
+                    + "\nThông tin đăng ký hợp lệ.");
+  }
+
 }

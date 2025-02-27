@@ -21,6 +21,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -53,6 +54,10 @@ public class StudentServiceImpl implements StudentService {
         studentRepository
             .findByUserEmail(studentEmail)
             .orElseThrow(() -> new EmptyResultDataAccessException("Không tìm thấy học viên", 1));
+    if (!(student.getUser().getStatus() == 1)) {
+      throw new AccessDeniedException(
+              "Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email của bạn để kích hoạt tài khoản.");
+    }
     List<Subscription> subscriptions = subscriptionRepository.findByStudent(student);
     return subscriptions.stream()
         .map(
@@ -91,6 +96,9 @@ public class StudentServiceImpl implements StudentService {
         userRepository
             .findByEmail(studentEmail)
             .orElseThrow(() -> new EmptyResultDataAccessException("Không tìm thấy người dùng", 1));
+    if (user.getStatus()!=1){
+      throw  new IllegalArgumentException("Tai khoan chua duoc duyet");
+    }
 
     Student student =
         studentRepository

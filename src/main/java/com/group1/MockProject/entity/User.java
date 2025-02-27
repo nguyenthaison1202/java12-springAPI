@@ -3,11 +3,17 @@ package com.group1.MockProject.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
 import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Setter
@@ -16,7 +22,7 @@ import lombok.Setter;
 @ToString
 @Entity
 @Table(name = "users")
-public class User {
+public class User{
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
@@ -78,11 +84,4 @@ public class User {
     this.updatedAt = LocalDateTime.now();
   }
 
-  public LocalDateTime getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(LocalDateTime createdDate) {
-    this.createdDate = createdDate;
-  }
 }

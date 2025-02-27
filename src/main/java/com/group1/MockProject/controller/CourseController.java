@@ -17,12 +17,15 @@ import com.group1.MockProject.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,10 +45,10 @@ public class CourseController {
   private final PaymentRepository paymentRepository;
   private final PaymentDetailRepository paymentDetailRepository;
 
+  @PreAuthorize("hasRole('INSTRUCTOR')")
   @PostMapping("/create")
-  public ResponseEntity<?> createCourse(
-      @RequestBody com.group1.MockProject.dto.request.CourseRequest courseRequest,
-      HttpServletRequest request) {
+  public ResponseEntity<?> createCourse(HttpServletRequest request,
+      @RequestBody @Valid CourseRequest courseRequest) {
     // Lấy token từ header Authorization
     String token = request.getHeader("Authorization");
 
@@ -60,33 +63,22 @@ public class CourseController {
     if (!JwtUtil.validateToken(token)) {
       throw new BadCredentialsException("Token không hợp lệ hoặc đã hết hạn");
     }
-
-    // Lấy thông tin người dùng từ JWT
-    //            String role = JwtUtil.extractRoleFromTokenCourse(token);
-    //            int userId = JwtUtil.extractUserIdFromToken(token);
-
     String email = JwtUtil.extractEmail(token);
     User user =
-        userRepository
-            .findByEmail(email)
-            .orElseThrow(() -> new EmptyResultDataAccessException("Không tìm thấy nguời dùng", 1));
-
-    // Kiểm tra nếu role là null hoặc không phải INSTRUCTOR
-    //            if (user.getRole() == null) {
-    //                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-    //                        .body("Role not found in the token");
-    //            }
+            userRepository
+                    .findByEmail(email)
+                    .orElseThrow(() -> new EmptyResultDataAccessException("Không tìm thấy người dùng", 1));
 
     if (!user.getRole().toString().equals("INSTRUCTOR")) {
-      throw new AccessDeniedException("Bạn không có quyền để tạo khoá học");
+      throw new AccessDeniedException("Bạn không có quyền để cập nhật khoá học này");
     }
-
+    // check status Instructor
     if (user.getStatus() == 0) {
-      throw new AccessDeniedException("Bạn không có quyền để tạo khoá học");
+      throw new AccessDeniedException("Bạn không có quyền để cập nhật khoá học này");
     }
-
+    int instructorId = user.getInstructor().getId();
     // Tiến hành tạo khóa học
-    CourseDTO response = courseService.createCourse(courseRequest, token);
+    CourseDTO response = courseService.createCourse(courseRequest,instructorId);
 
     // Trả về phản hồi thành công với mã trạng thái 201 Created và thông tin khóa học mới tạo
     return ResponseEntity.status(HttpStatus.CREATED)
@@ -99,6 +91,7 @@ public class CourseController {
   }
 
   // Endpoint to update an existing course
+  @PreAuthorize("hasRole('INSTRUCTOR')")
   @PutMapping("/{courseId}")
   public ResponseEntity<?> updateCourse(
       @PathVariable int courseId,
@@ -178,11 +171,11 @@ public class CourseController {
     courseService.deleteCourse(courseId, token);
 
     // Trả về thông báo xóa thành công
-    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+    return ResponseEntity.status(HttpStatus.OK)
         .body(
             ApiResponseDto.<CourseDTO>builder()
                 .status(204)
-                .message(HttpStatus.NO_CONTENT.getReasonPhrase())
+                .message(HttpStatus.OK.getReasonPhrase())
                 .build());
   }
 
@@ -206,7 +199,7 @@ public class CourseController {
                 .build());
   }
 
-  @GetMapping("/{courseId}/enrolled")
+  @GetMapping("/enrolled/{courseId}")
   public ResponseEntity<?> enrollCourse(
       @PathVariable("courseId") int courseId,
       @RequestHeader("Authorization") String authorizationHeader) {

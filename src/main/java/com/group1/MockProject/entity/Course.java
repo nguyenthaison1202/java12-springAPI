@@ -24,6 +24,7 @@ public class Course {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int Id;
 
+  @NotNull
   @Column(name = "title", nullable = false)
   private String title;
 
@@ -31,7 +32,7 @@ public class Course {
   private String description = "Default description";
 
   @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+  private LocalDateTime createdAt = LocalDateTime.now();
 
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
@@ -55,9 +56,11 @@ public class Course {
   @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
   private Category category;
 
+  @JsonManagedReference
   @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Enrollment> enrollment;
 
+  @JsonManagedReference
   @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<PaymentDetail> paymentDetails;
 

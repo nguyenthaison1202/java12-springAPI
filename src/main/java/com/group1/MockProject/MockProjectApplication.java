@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -36,6 +37,11 @@ public class MockProjectApplication {
 			category1.setName("Technology");
 			category1.setDescription("Courses on technology and programming");
 			categoryRepository.save(category1);
+
+			Category category2 = new Category();
+			category2.setName("Example category 2");
+			category2.setDescription("Courses on category 2, technology and programming");
+			categoryRepository.save(category2);
 			// Create and save Instructors
 			User instructorUser1 = new User();
 			instructorUser1.setEmail("instructor1@example.com");
@@ -45,7 +51,7 @@ public class MockProjectApplication {
 			instructorUser1.setPhone("1234567890");
 			instructorUser1.setCreatedAt(LocalDateTime.now());
 			instructorUser1.setUpdatedAt(LocalDateTime.now());
-			instructorUser1.setStatus(0);
+			instructorUser1.setStatus(1);
 			instructorUser1.setRole(UserRole.INSTRUCTOR);
 			userRepository.save(instructorUser1);
 
@@ -66,6 +72,37 @@ public class MockProjectApplication {
 			course1.setCategory(category1);
 			course1.setInstructor(instructor1);
 			courseRepository.save(course1);
+
+			Course course2 = new Course();
+			course2.setTitle("Python Programming");
+			course2.setDescription("Learn python from scratch.");
+			course2.setPrice(200000.0);
+			course2.setStatus(1);
+			//			course1.setCodeCourse(UUID.randomUUID().toString());
+			course2.setCategory(category2);
+			course2.setInstructor(instructor1);
+			courseRepository.save(course2);
+
+			Course course3 = new Course();
+			course3.setTitle("HTML/CSS Programming");
+			course3.setDescription("Learn HTML/CSS from scratch.");
+			course3.setPrice(600000.0);
+			course3.setStatus(-1);
+			//			course1.setCodeCourse(UUID.randomUUID().toString());
+			course3.setCategory(category2);
+			course3.setInstructor(instructor1);
+			courseRepository.save(course3);
+
+
+			Course course4 = new Course();
+			course4.setTitle("JavaScript Programming");
+			course4.setDescription("Learn JavaScript from scratch.");
+			course4.setPrice(500000.0);
+			course4.setStatus(0);
+			//			course1.setCodeCourse(UUID.randomUUID().toString());
+			course4.setCategory(category2);
+			course4.setInstructor(instructor1);
+			courseRepository.save(course4);
 
 			// create and save admin
 			if (userRepository.findByEmail("nguyenthaison2002@gmail.com").isEmpty()) {

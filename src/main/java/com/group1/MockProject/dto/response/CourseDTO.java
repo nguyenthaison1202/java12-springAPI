@@ -16,4 +16,5 @@ public class CourseDTO {
   private Double price;
   private InstructorDTO instructor;
   private CategoryDTO category;
+  private int status;
 }

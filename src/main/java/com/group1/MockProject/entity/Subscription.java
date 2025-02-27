@@ -1,5 +1,6 @@
 package com.group1.MockProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -19,18 +20,20 @@ public class Subscription {
   private int id;
 
   @Column(name = "created_at")
-  private LocalDateTime createdAt;
+  private LocalDateTime createdAt = LocalDateTime.now();
 
+  @JsonBackReference
   @ManyToOne
   @JoinColumn(name = "student_id")
   private Student student;
 
+  @JsonBackReference
   @ManyToOne
   @JoinColumn(name = "instructor_id")
   private Instructor instructor;
 
   @Column(name = "subscribed_at")
-  private LocalDateTime subscribedAt;
+  private LocalDateTime subscribedAt = LocalDateTime.now();
 
   public LocalDateTime getSubscribedAt() {
     return subscribedAt;

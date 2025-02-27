@@ -8,4 +8,6 @@ public interface EmailService {
     String buildApprovedCourseEmailForInstructor(String title, String instructorName);
     String buildApprovedCourseEmailForStudent(String title, String instructorName, String studentName);
     String buildRejectCourseEmail(String title, String name, String reason);
+    String buildRejectInstructorEmail(String instructorName, String reason);
+    String buildApprovedInstructorEmail(String instructorName, String reason);
 }

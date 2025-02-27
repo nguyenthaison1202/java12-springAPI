@@ -24,6 +24,6 @@ public class CourseRequest {
   private int instructorId;
 
   // Assuming the instructor is selected by ID
-  @NotBlank(message = "Bạn phải phân loại khóa học")
+  @NotNull(message = "Bạn phải phân loại khóa học")
   private int categoryId; // Assuming the category is selected by ID
 }

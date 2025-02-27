@@ -18,5 +18,6 @@ public interface AdminService {
 
   SignInResponse authenticate(SignInRequest request);
 
+//  MessageDTO setRejectCourse(int courseId);
   void deleteUser(int userId);
 }

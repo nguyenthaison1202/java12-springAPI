@@ -1,5 +1,6 @@
 package com.group1.MockProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
@@ -23,18 +24,21 @@ public class PaymentDetail {
   private String comment = "Default comment";
 
   @Column(name = "payment_date")
-  private LocalDate payment_date;
+  private LocalDate payment_date = LocalDate.now();
 
+  @JsonBackReference
   @ManyToOne
   @JoinColumn(name = "payment_id", referencedColumnName = "id")
   private Payment payment;
 
+  @JsonBackReference
   @ManyToOne
   @JoinColumn(name = "student_id", referencedColumnName = "id")
   private Student student;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "course_id", referencedColumnName = "id")
-    private Course course;
+  @JsonBackReference
+  @ManyToOne
+  @JoinColumn(name = "course_id", referencedColumnName = "id")
+  private Course course;
+
 }

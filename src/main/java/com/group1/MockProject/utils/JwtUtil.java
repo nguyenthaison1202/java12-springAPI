@@ -3,10 +3,17 @@ package com.group1.MockProject.utils;
 import com.group1.MockProject.dto.request.UpdateProfileRequest;
 import com.group1.MockProject.entity.User;
 // Import Enum UserRole
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
@@ -25,7 +32,7 @@ public class JwtUtil {
     return Jwts.builder()
         .setSubject(user.getEmail())
         .claim("role", user.getRole().name())
-        .claim("role", user.getRole())
+//        .claim("role", user.getRole())
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
         .signWith(SECRET_KEY)
@@ -81,13 +88,13 @@ public class JwtUtil {
         .claim("phone", request.getPhone())
         .claim("address", request.getAddress())
         .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
-        .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+        .signWith(SECRET_KEY)
         .compact();
   }
 
   public static String generateForgotPasswordToken(String email) {
     return Jwts.builder()
-        .setSubject(email + "_" + UUID.randomUUID().toString())
+        .setSubject(email + "_" + UUID.randomUUID())
         .claim("role", "ROLE_FORGOT_PASSWORD")
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
@@ -105,5 +112,9 @@ public class JwtUtil {
             .getSubject();
 
     return extractStringFromToken.split("_")[0];
+  }
+  private static SecretKey getSigninKey(){
+    byte [] keyBytes = Decoders.BASE64.decode(String.valueOf(SECRET_KEY));
+    return Keys.hmacShaKeyFor(keyBytes);
   }
 }

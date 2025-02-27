@@ -18,71 +18,50 @@ import com.group1.MockProject.utils.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
   private ModelMapper modelMapper;
 
-  private CourseRepository courseRepository;
+  private final CourseRepository courseRepository;
+  private final CategoryRepository categoryRepository;
+  private final InstructorRepository instructorRepository;
+  private final UserRepository userRepository;
+  private final EmailService emailService;
+  private final SubscriptionRepository subscriptionRepository;
 
-  private CategoryRepository categoryRepository;
-
-  private InstructorRepository instructorRepository;
-
-  private UserRepository userRepository;
-
-  private EmailService emailService;
-
-  private SubscriptionRepository subscriptionRepository;
-
-  @Autowired
-  public CourseServiceImpl(
-      CourseRepository courseRepository,
-      CategoryRepository categoryRepository,
-      InstructorRepository instructorRepository,
-      UserRepository userRepository,
-      ModelMapper modelMapper,
-      EmailService emailService,
-      SubscriptionRepository subscriptionRepository) {
-    this.courseRepository = courseRepository;
-    this.categoryRepository = categoryRepository;
-    this.instructorRepository = instructorRepository;
-    this.userRepository = userRepository;
-    this.modelMapper = modelMapper;
-    this.emailService = emailService;
-    this.subscriptionRepository = subscriptionRepository;
-  }
-
-  private CategoryDTO maptoDTO(Category category) {
+  private CategoryDTO mapToDTO(Category category) {
     return modelMapper.map(category, CategoryDTO.class);
   }
+//  private CourseDTO mapToDTO(Course course) {
+//    return modelMapper.map(course, CourseDTO.class);
+//  }
 
   @Override
-  public CourseDTO createCourse(
-      com.group1.MockProject.dto.request.CourseRequest courseRequest, String token) {
-
-    String email = JwtUtil.extractEmail(token);
-    User user =
-        userRepository
-            .findByEmail(email)
-            .orElseThrow(() -> new EmptyResultDataAccessException("Không tìm thấy người dùng", 1));
-    ;
-    if (user.getStatus()==1){
+  public CourseDTO createCourse(CourseRequest courseRequest, int instructorId) {
+//    int userID = getAuthUserInfo.getAuthUserId();
+    Instructor instructor = instructorRepository.findById(instructorId).orElseThrow(()->new IllegalArgumentException("Không tìm thấy người dùng"));
+    if (instructor.getUser().getStatus()==1){
       // Convert the CreateCourseRequest to a Course entity
       Course course = new Course();
+      Course existCourse = courseRepository.findCourseByTitle(courseRequest.getTitle());
+      if (existCourse!=null){
+        throw new IllegalArgumentException("Ten khoa hoc da ton tai");
+      }
       course.setTitle(courseRequest.getTitle());
       course.setDescription(courseRequest.getDescription());
       course.setPrice(courseRequest.getPrice());
       course.setStatus(0);
       course.setCreatedAt(LocalDateTime.now());
-      course.setStatus(0);
       // Fetch Instructor from DB using categoryid
       Category category =
               categoryRepository
@@ -91,10 +70,27 @@ public class CourseServiceImpl implements CourseService {
 
       // Set Category and Instructor
       course.setCategory(category);
-      course.setInstructor(user.getInstructor()); 
+      course.setInstructor(instructor);
 
       // Save the course entity in the database
       course = courseRepository.save(course);
+      String courseTitle = courseRequest.getTitle();
+      String instructorName = instructor.getName();
+      // 2. Gửi email cho tất cả subscriber
+      List<Subscription> subscribers = subscriptionRepository
+              .findByInstructor(course.getInstructor());
+
+      for (Subscription sub : subscribers) {
+        User student = sub.getStudent().getUser();
+        emailService.sendNotification(
+                student.getEmail(),
+                emailService.buildApprovedCourseEmailForStudent(
+                        courseTitle,
+                        instructorName,
+                        student.getFullName()
+                )
+        );
+      }
       return modelMapper.map(course, CourseDTO.class);
     }
     else {
@@ -138,7 +134,9 @@ public class CourseServiceImpl implements CourseService {
     course = courseRepository.save(course);
 
     // Return the updated CourseDTO
-    return modelMapper.map(course, CourseDTO.class);
+    CourseDTO courseDTO = modelMapper.map(course, CourseDTO.class);
+    courseDTO.setInstructor(modelMapper.map(course.getInstructor(), InstructorDTO.class));
+    return courseDTO;
   }
 
   @Override
@@ -157,7 +155,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     // Lấy danh sách khóa học từ repository
-    List<Course> courses = courseRepository.findByInstructor(user.getInstructor());
+    List<Course> courses = courseRepository.findByInstructorId(user.getInstructor().getId());
 
     // Chuyển đổi từ Course entity sang CourseDTO
     return courses.stream()
@@ -169,7 +167,8 @@ public class CourseServiceImpl implements CourseService {
                     course.getDescription(),
                     course.getPrice(),
                     modelMapper.map(course.getInstructor(), InstructorDTO.class),
-                    maptoDTO(course.getCategory())))
+                    mapToDTO(course.getCategory()),
+                    course.getStatus()))
         .collect(Collectors.toList());
   }
 
@@ -275,7 +274,7 @@ public class CourseServiceImpl implements CourseService {
                   rejectCourseResponse.setTitle(course.getTitle());
                   rejectCourseResponse.setDescription(course.getDescription());
                   rejectCourseResponse.setPrice(course.getPrice());
-                  rejectCourseResponse.setCategory(maptoDTO(course.getCategory()));
+                  rejectCourseResponse.setCategory(mapToDTO(course.getCategory()));
                   rejectCourseResponse.setRejectReason(course.getRejectionReason());
 
                   return rejectCourseResponse;
@@ -330,24 +329,10 @@ public class CourseServiceImpl implements CourseService {
 
   @Override
   public List<CourseDTO> getAllCourses() {
+    List<Course> courses = courseRepository.findAll();
     // Logic để lấy danh sách khóa học từ repository
     // Ví dụ: return courseRepository.findAll().stream().map(...).collect(Collectors.toList());
-    return null; // Thay thế bằng logic thực tế
+    return courses.stream().map(course -> modelMapper.map(course,CourseDTO.class)).collect(Collectors.toList()); // Thay thế bằng logic thực tế
   }
-  //    @Override
-  //    public List<CourseDTO> getAllCourses() {
-  //        // Get all course
-  //        List<Course> courses = courseRepository.findAll();
-  //
-  //        // Get all category
-  //        List<Category> categories = categoryRepository.findAll();
-  //        // Map category entity to dto
-  //        List<CategoryDTO> categoryDTOList = categories.stream().map(category ->
-  // maptoDTO(category)).collect(Collectors.toList());
-  //        // Map course entity to dto
-  //        List<CourseDTO> response = courses.stream().map(course ->
-  // mapToDTO(course)).collect(Collectors.toList());
-  //        return response;
-  //    }
 
 }

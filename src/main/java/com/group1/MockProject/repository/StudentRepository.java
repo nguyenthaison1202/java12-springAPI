@@ -1,5 +1,7 @@
 package com.group1.MockProject.repository;
 
+import com.group1.MockProject.entity.Payment;
+import com.group1.MockProject.entity.PaymentDetail;
 import com.group1.MockProject.entity.Student;
 import com.group1.MockProject.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

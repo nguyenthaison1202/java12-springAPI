@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
       throw new BadCredentialsException("Sai email hoặc mật khẩu");
     }
 
-    if (user.getStatus() == -1) {
+    if (user.getStatus() == -1 || user.getStatus() == 0) {
       throw new AccessDeniedException("Tài khoản đã bị khóa");
     }
 
@@ -167,13 +167,11 @@ public class AuthServiceImpl implements AuthService {
 
     confirmTokenService.saveConfirmToken(confirmToken);
 
-    String link = HOST + "/api/v1/auth/sign-up/confirm?token=" + token;
     String title = "Xác nhận địa chỉ email của bạn";
     String content =
-        "Để xác thực địa chỉ email đã đăng ký vui lòng nhấn <blockquote style=\"Margin: 0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\">"
-            + "<a href=\""
-            + link
-            + "\">vào đây.</a></blockquote>\n <p>Cảm ơn bạn đã đăng ký tài khoản. Hẹn gặp lại bạn! \nAdmin Group 1</p>";
+            "Để xác thực địa chỉ email đã đăng ký vui lòng chờ hệ thống xét duyệt <blockquote style=\"Margin: 0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\">"
+                    + "</blockquote><p>Cảm ơn bạn đã đăng ký tài khoản. Hẹn gặp lại bạn! \nAdmin Group 1</p>";
+
     emailService.send(
         requestForInstructor.getEmail(),
         emailService.buildEmail(title, requestForInstructor.getEmail(), content));

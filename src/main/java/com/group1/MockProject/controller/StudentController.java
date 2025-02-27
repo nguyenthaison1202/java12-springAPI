@@ -3,7 +3,6 @@ package com.group1.MockProject.controller;
 import com.group1.MockProject.dto.ApiResponseDto;
 import com.group1.MockProject.dto.MessageDTO;
 import com.group1.MockProject.dto.PaymentDTO;
-import com.group1.MockProject.dto.request.AddPaymentRequest;
 import com.group1.MockProject.dto.request.PaymentRequest;
 import com.group1.MockProject.dto.response.*;
 import com.group1.MockProject.entity.Category;
@@ -28,6 +27,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -60,22 +60,6 @@ public class StudentController {
                 .build());
   }
 
-  @GetMapping("/add-payment")
-  public ResponseEntity<ApiResponseDto<AddPaymentResponse>> AddPaymentDetail(
-      @RequestHeader("Authorization") String authorizationHeader,
-      @Valid @RequestBody AddPaymentRequest request) {
-    String token = authorizationHeader.replace("Bearer ", "");
-    String email = JwtUtil.extractEmail(token);
-    AddPaymentResponse response = paymentService.addPaymentDetail(email, request);
-    return ResponseEntity.ok()
-        .body(
-            ApiResponseDto.<AddPaymentResponse>builder()
-                .status(200)
-                .message(HttpStatus.OK.getReasonPhrase())
-                .response(response)
-                .build());
-  }
-
   @GetMapping("/search-instructor")
   public ResponseEntity<ApiResponseDto<List<InstructorResponse>>> searchInstructor(
       @RequestParam String name) {
@@ -89,7 +73,7 @@ public class StudentController {
                 .build());
   }
 
-  @PostMapping("/subscribe/{instructorId}")
+  @GetMapping("/subscribe/{instructorId}")
   public ResponseEntity<ApiResponseDto<?>> subscribeToInstructor(
       @PathVariable Integer instructorId,
       @RequestHeader("Authorization") String authorizationHeader) {
@@ -123,7 +107,56 @@ public class StudentController {
                 .build());
   }
 
-  @GetMapping("/payment/vn-pay")
+  @PreAuthorize("hasRole('STUDENT')")
+  @PostMapping("/add-payment")
+  public ResponseEntity<ApiResponseDto<AddPaymentResponse>> AddPaymentDetail(
+          @RequestHeader("Authorization") String authorizationHeader,
+          @Valid @RequestBody PaymentRequest request) {
+    String token = authorizationHeader.replace("Bearer ", "");
+    String email = JwtUtil.extractEmail(token);
+    AddPaymentResponse response = paymentService.addPaymentDetail(email, request);
+    return ResponseEntity.ok()
+            .body(
+                    ApiResponseDto.<AddPaymentResponse>builder()
+                            .status(200)
+                            .message(HttpStatus.OK.getReasonPhrase())
+                            .response(response)
+                            .build());
+  }
+  @PreAuthorize("hasRole('STUDENT')")
+  @DeleteMapping("/delete-payment")
+  public ResponseEntity<?> deletePaymentDetail(
+          @RequestHeader("Authorization") String authorizationHeader,
+          @Valid @RequestBody PaymentRequest request) {
+    String token = authorizationHeader.replace("Bearer ", "");
+    String email = JwtUtil.extractEmail(token);
+    paymentService.deletePaymentDetail(email, request);
+    // Trả về thông báo xóa thành công
+    return ResponseEntity.status(HttpStatus.OK)
+            .body(
+                    ApiResponseDto.<PaymentResponse>builder()
+                            .status(204)
+                            .message(HttpStatus.OK.getReasonPhrase())
+                            .build());
+  }
+
+  @PreAuthorize("hasRole('STUDENT')")
+  @GetMapping("/all-payment")
+  public ResponseEntity<ApiResponseDto<?>> getAllPayment(@RequestHeader("Authorization")String authorizationHeader){
+    String token = authorizationHeader.replace("Bearer ", "");
+    String email = JwtUtil.extractEmail(token);
+    PaymentResponseDTO response = paymentService.getAllPayment(email);
+    return ResponseEntity.ok().body(
+            ApiResponseDto.builder()
+                    .status(200)
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .response(response)
+                    .build()
+    );
+  }
+
+  @PreAuthorize("hasRole('STUDENT')")
+  @PostMapping("/payment/vn-pay")
   public ResponseEntity<ApiResponseDto<?>> payment(
       @RequestHeader("Authorization") String authorizationHeader,
       @Valid @RequestBody PaymentRequest request,
@@ -186,24 +219,6 @@ public class StudentController {
     }
   }
 
-  //  @GetMapping("/payment/vn-pay")
-  //  public ResponseEntity<ApiResponseDto<PaymentDTO.VNPayResponse>> payment(
-  //      @RequestHeader("Authorization") String authorizationHeader,
-  //      @Valid @RequestBody PaymentRequest request,
-  //      HttpServletRequest httpRequest) {
-  //    String token = authorizationHeader.replace("Bearer ", "");
-  //    String email = JwtUtil.decodeToken(token).getSubject();
-  //    Payment payment = paymentService.checkPayment(email, request);
-  //    PaymentDTO.VNPayResponse response = VNPayService.createVnPayPayment(payment, httpRequest);
-  //    return ResponseEntity.ok()
-  //        .body(
-  //            ApiResponseDto.<PaymentDTO.VNPayResponse>builder()
-  //                .status(200)
-  //                .message(HttpStatus.OK.getReasonPhrase())
-  //                .response(response)
-  //                .build());
-  //  }
-
   @GetMapping("/savedCourses")
   public ResponseEntity<ApiResponseDto<GetSavedCourseResponse>> viewSavedCourse(
       @RequestHeader("Authorization") String authorizationHeader) {
@@ -239,20 +254,4 @@ public class StudentController {
                 .response(courseDTOList)
                 .build());
   }
-
-  //  @GetMapping("/payment")
-  //  public ResponseEntity<ApiResponseDto<PaymentResponse>> payment(
-  //      @RequestHeader("Authorization") String authorizationHeader,
-  //      @Valid @RequestBody PaymentRequest request) {
-  //    String token = authorizationHeader.replace("Bearer ", "");
-  //    String email = JwtUtil.decodeToken(token).getSubject();
-  //    PaymentResponse response = paymentService.addPayment(email, request);
-  //    return ResponseEntity.ok()
-  //        .body(
-  //            ApiResponseDto.<PaymentResponse>builder()
-  //                .status(200)
-  //                .message(HttpStatus.OK.getReasonPhrase())
-  //                .response(response)
-  //                .build());
-  //  }
 }

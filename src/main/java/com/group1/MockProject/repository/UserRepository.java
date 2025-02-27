@@ -10,9 +10,11 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
+//    Optional<User>  findByUsername(String username);
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailAndProvider(String email, String provider);
     Optional<User> findByIdAndRole(int id, UserRole role);
     long countByRole(UserRole role);
-    long countByCreatedDateAfter(LocalDateTime date);
+
+    long countByCreatedDateAfter(LocalDateTime createdDateAfter);
 }

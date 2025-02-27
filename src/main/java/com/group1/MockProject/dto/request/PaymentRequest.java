@@ -1,10 +1,9 @@
 package com.group1.MockProject.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -12,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PaymentRequest {
     @NotNull(message = "Vui lòng nhập đầy đủ thông tin")
-    private int paymentId;
+    private int courseId;
+    private LocalDateTime paymentDate = LocalDateTime.now();
 }

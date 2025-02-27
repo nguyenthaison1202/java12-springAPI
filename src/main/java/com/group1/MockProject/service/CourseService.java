@@ -12,10 +12,10 @@ import java.util.List;
 @Service
 public interface CourseService {
   CourseDTO createCourse(
-      com.group1.MockProject.dto.request.CourseRequest courseRequest, String token);
+      CourseRequest courseRequest, int instructorId);
 
   CourseDTO updateCourse(
-      int courseId, com.group1.MockProject.dto.request.CourseRequest courseRequest, String token);
+      int courseId, CourseRequest courseRequest, String token);
 
   List<CourseDTO> getCoursesByInstructor(String token);
 

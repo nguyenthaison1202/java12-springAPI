@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       if (request.getRequestURI().startsWith("/login/oauth2/code/")
           || request.getRequestURI().startsWith("/oauth2/authorize")
           || request.getRequestURI().matches("^/api/v1/auth/.*")
+              || request.getRequestURI().startsWith("/api/v1/admin/sign-in")
       ||request.getRequestURI().startsWith("/api/v1/student/payment/vn-pay-callback")) {
         filterChain.doFilter(request, response); // Bypass for OAuth2
         return;
